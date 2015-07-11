@@ -1,5 +1,13 @@
 from setuptools import setup
 
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
 setup(
     name='scikit-chainer',
     version='0.1',
@@ -8,5 +16,8 @@ setup(
     license='MIT',
     author='Shiqiao Du',
     author_email='lucidfrontier.45@gmail.com',
-    description='scikit-learn like interface for chainer'
+    description='scikit-learn like interface for chainer',
+    classifiers=classifiers,
+    install_requires=["scikit-learn", "chainer"]
+
 )

@@ -7,13 +7,14 @@ from sklearn import base
 
 
 class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
-    def __init__(self, optimizer=optimizers.SGD(), n_iter=10000, eps=1e-5,
+    def __init__(self, optimizer=optimizers.SGD(), n_iter=10000, eps=1e-5, report=100,
                  **params):
         self.network = self._setup_network(**params)
         self.optimizer = optimizer
         self.optimizer.setup(self.network.collect_parameters())
         self.n_iter = n_iter
         self.eps = eps
+        self.report = report
 
     @abstractmethod
     def _setup_network(self, **params):
@@ -29,8 +30,8 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
         return F.mean_squared_error(y, t)
 
     @abstractmethod
-    def output_func(self, x):
-        return F.identity(x)
+    def output_func(self, h):
+        return F.identity(h)
 
     def fit(self, x_data, y_data):
         score = 1e100
@@ -46,7 +47,7 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
             if d_score < self.eps:
                 print(i, loss.data, d_score)
                 break
-            if i % 100 == 0:
+            if self.report > 0 and i % self.report == 0:
                 print(i, loss.data, d_score)
         return self
 
@@ -54,3 +55,12 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
         x = Variable(x_data)
         y = self.forward(x)
         return self.output_func(y).data
+
+
+class ChainerRegresser(BaseChainerEstimator, base.RegressorMixin):
+    pass
+
+
+class ChainerClassifier(BaseChainerEstimator, base.ClassifierMixin):
+    def predict(self, x_data):
+        return BaseChainerEstimator.predict(self, x_data).argmax(1)

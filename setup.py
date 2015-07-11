@@ -10,7 +10,7 @@ classifiers = [
 
 setup(
     name='scikit-chainer',
-    version='0.1',
+    version='0.1.1',
     packages=['skchainer'],
     url='https://github.com/lucidfrontier45/scikit-chainer',
     license='MIT',
@@ -18,6 +18,6 @@ setup(
     author_email='lucidfrontier.45@gmail.com',
     description='scikit-learn like interface for chainer',
     classifiers=classifiers,
-    install_requires=["scikit-learn", "chainer"]
+    install_requires=["numpy", "scikit-learn", "chainer"]
 
 )

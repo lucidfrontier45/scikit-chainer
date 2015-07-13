@@ -21,7 +21,7 @@ class LinearRegression(ChainerRegresser):
 
 class LogisticRegression(ChainerClassifier):
     def _setup_network(self, **params):
-        return FunctionSet(l1=F.Linear(params["n_dim"], params["n_class"]))
+        return FunctionSet(l1=F.Linear(params["n_dim"], params["n_classes"]))
 
     def forward(self, x):
         y = self.network.l1(x)

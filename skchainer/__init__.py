@@ -4,10 +4,11 @@ from abc import ABCMeta, abstractmethod
 from chainer import FunctionSet, Variable, optimizers
 from chainer import functions as F
 from sklearn import base
+import numpy as np
 
 
 class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
-    def __init__(self, optimizer=optimizers.SGD(), n_iter=10000, eps=1e-5, report=100,
+    def __init__(self, optimizer=optimizers.SGD(), batch_size=100, n_iter=10000, eps=1e-5, report=100,
                  **params):
         self.network = self._setup_network(**params)
         self.optimizer = optimizer
@@ -15,6 +16,7 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
         self.n_iter = n_iter
         self.eps = eps
         self.report = report
+        self.batch_size = batch_size
 
     @abstractmethod
     def _setup_network(self, **params):
@@ -31,12 +33,19 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
 
     def fit(self, x_data, y_data=None):
         score = 1e100
-        x = Variable(x_data)
         if y_data is None:
-            t = x
-        else:
-            t = Variable(y_data)
+            y_data = x_data
+
         for i in range(self.n_iter):
+            if 0 < self.batch_size < len(x_data):
+                idx = np.random.permutation(self.batch_size)
+                xx = x_data[idx]
+                yy = y_data[idx]
+            else:
+                xx = x_data
+                yy = y_data
+            x = Variable(xx)
+            t = Variable(yy)
             self.optimizer.zero_grads()
             loss = self._loss_func(self._forward(x, train=True), t)
             loss.backward()
@@ -48,6 +57,7 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
                 break
             if self.report > 0 and i % self.report == 0:
                 print(i, loss.data, d_score)
+
         return self
 
 

@@ -13,13 +13,10 @@ class MultiLayerPerceptron(ChainerClassifier):
 
         return network
 
-    def forward(self, x):
+    def _forward(self, x, train=True):
         h = F.relu(self.network.l1(x))
         y = self.network.l2(h)
         return y
 
-    def loss_func(self, y, t):
+    def _loss_func(self, y, t):
         return F.softmax_cross_entropy(y, t)
-
-    def output_func(self, h):
-        return F.softmax(h)

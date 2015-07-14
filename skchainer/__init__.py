@@ -21,25 +21,24 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
         return FunctionSet(l1=F.Linear(1, 1))
 
     @abstractmethod
-    def forward(self, x):
+    def _forward(self, x, train=False):
         y = self.network.l1(x)
         return y
 
     @abstractmethod
-    def loss_func(self, y, t):
+    def _loss_func(self, y, t):
         return F.mean_squared_error(y, t)
 
-    @abstractmethod
-    def output_func(self, h):
-        return F.identity(h)
-
-    def fit(self, x_data, y_data):
+    def fit(self, x_data, y_data=None):
         score = 1e100
         x = Variable(x_data)
-        t = Variable(y_data)
+        if y_data is None:
+            t = x
+        else:
+            t = Variable(y_data)
         for i in range(self.n_iter):
             self.optimizer.zero_grads()
-            loss = self.loss_func(self.forward(x), t)
+            loss = self._loss_func(self._forward(x, train=True), t)
             loss.backward()
             self.optimizer.update()
             d_score = score - loss.data
@@ -51,16 +50,30 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
                 print(i, loss.data, d_score)
         return self
 
-    def predict(self, x_data):
-        x = Variable(x_data)
-        y = self.forward(x)
-        return self.output_func(y).data
-
 
 class ChainerRegresser(BaseChainerEstimator, base.RegressorMixin):
-    pass
+    def predict(self, x_data):
+        x = Variable(x_data)
+        y = self._forward(x, train=False)
+        return y.data
 
 
 class ChainerClassifier(BaseChainerEstimator, base.ClassifierMixin):
     def predict(self, x_data):
-        return BaseChainerEstimator.predict(self, x_data).argmax(1)
+        x = Variable(x_data)
+        y = self._forward(x, train=False)
+        return F.softmax(y).data.argmax(1)
+
+
+class ChainerTransformer(BaseChainerEstimator, base.TransformerMixin):
+    @abstractmethod
+    def _transform(self, x, train=False):
+        raise NotImplementedError
+
+    def transform(self, x_data):
+        x = Variable(x_data)
+        z = self._transform(x)
+        return z.data
+
+    def fit(self, x_data, y_data=None):
+        return BaseChainerEstimator.fit(self, x_data, None)

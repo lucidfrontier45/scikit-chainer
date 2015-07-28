@@ -56,7 +56,8 @@ class LogisticRegression(ChainerClassifier):
 ```
 
 ### AutoEncoder
-```
+
+```python
 class AutoEncoder(ChainerTransformer):
     def __init__(self, activation=F.relu, **params):
         super(ChainerTransformer, self).__init__(**params)

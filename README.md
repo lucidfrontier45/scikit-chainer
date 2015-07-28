@@ -10,7 +10,7 @@ $ pip install scikit-chainer
 ## what's this?
 This is a scikit-learn like interface to the chainer deeplearning framework.
 You can use it to build your network model and use the model with scikit-learn APIs (e.g. `fit`, `predict`)
-There are `ChainerRegresser` for regression and `ChainerClassifer` for classification base classes.
+There are `ChainerRegresser` for regression, `ChainerClassifer` for classification base classes and `ChainerTransformer` for transformation.
 You need to inherit them and implement the following functions,
 
 1. `_setup_network` : network definition (`FunctionSet` of chainer)
@@ -55,3 +55,27 @@ class LogisticRegression(ChainerClassifier):
         return F.softmax(h)
 ```
 
+### AutoEncoder
+```
+class AutoEncoder(ChainerTransformer):
+    def __init__(self, activation=F.relu, **params):
+        super(ChainerTransformer, self).__init__(**params)
+        self.activation = activation
+
+    def _setup_network(self, **params):
+        return FunctionSet(
+            encoder=F.Linear(params["input_dim"], params["hidden_dim"]),
+            decoder=F.Linear(params["hidden_dim"], params["input_dim"])
+        )
+
+    def _forward(self, x, train=False):
+        z = self._transform(x, train)
+        y = self.network.decoder(z)
+        return y
+
+    def _loss_func(self, y, t):
+        return F.mean_squared_error(y, t)
+
+    def _transform(self, x, train=False):
+        return self.activation(self.network.encoder(x))
+```

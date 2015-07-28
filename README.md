@@ -1,6 +1,12 @@
 # scikit-chainer
 scikit-learn like interface to chainer
 
+## How to install
+
+```bash
+$ pip install scikit-chainer
+```
+
 ## what's this?
 This is a scikit-learn like interface to the chainer deeplearning framework.
 You can use it to build your network model and use the model with scikit-learn APIs (e.g. `fit`, `predict`)

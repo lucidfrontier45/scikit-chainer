@@ -1,12 +1,12 @@
 __author__ = 'du'
 
-from chainer import FunctionSet, functions as F
+from chainer import Chain, functions as F
 from . import ChainerRegresser, ChainerClassifier
 
 
 class LinearRegression(ChainerRegresser):
     def _setup_network(self, **params):
-        return FunctionSet(l1=F.Linear(params["n_dim"], 1))
+        return Chain(l1=F.Linear(params["n_dim"], 1))
 
     def _forward(self, x, train=False):
         y = self.network.l1(x)
@@ -18,7 +18,7 @@ class LinearRegression(ChainerRegresser):
 
 class LogisticRegression(ChainerClassifier):
     def _setup_network(self, **params):
-        return FunctionSet(l1=F.Linear(params["n_dim"], params["n_classes"]))
+        return Chain(l1=F.Linear(params["n_dim"], params["n_classes"]))
 
     def _forward(self, x, train=False):
         y = self.network.l1(x)

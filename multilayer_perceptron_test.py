@@ -13,7 +13,6 @@ y = iris.target.astype(np.int32)
 input_dim = x.shape[1]
 n_classes = len(set(y))
 
-model = MultiLayerPerceptron(optimizer=optimizers.AdaDelta(rho=0.5),
-                             input_dim=input_dim, hidden_dim=2, n_classes=n_classes, report=100).fit(x, y)
+model = MultiLayerPerceptron(optimizer=optimizers.Adam(),
+                             input_dim=input_dim, hidden_dim=10, n_classes=n_classes).fit(x, y)
 print(model.score(x, y))
-print(model.network.l1.parameters)

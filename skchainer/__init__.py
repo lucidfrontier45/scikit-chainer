@@ -1,26 +1,26 @@
 __author__ = 'du'
 
 from abc import ABCMeta, abstractmethod
-from chainer import FunctionSet, Variable, optimizers
+
+import numpy as np
+from chainer import Chain, Variable, optimizers
 from chainer import functions as F
 from sklearn import base
-import numpy as np
 
 
 class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
-    def __init__(self, optimizer=optimizers.SGD(), batch_size=100, n_iter=10000, eps=1e-5, report=100,
+    def __init__(self, optimizer=optimizers.SGD(), batch_size=10, n_iter=100, report=10,
                  **params):
         self.network = self._setup_network(**params)
         self.optimizer = optimizer
-        self.optimizer.setup(self.network.collect_parameters())
+        self.optimizer.setup(self.network)
         self.n_iter = n_iter
-        self.eps = eps
         self.report = report
         self.batch_size = batch_size
 
     @abstractmethod
     def _setup_network(self, **params):
-        return FunctionSet(l1=F.Linear(1, 1))
+        return Chain(l1=F.Linear(1, 1))
 
     @abstractmethod
     def _forward(self, x, train=False):
@@ -36,27 +36,26 @@ class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
         if y_data is None:
             y_data = x_data
 
-        for i in range(self.n_iter):
-            if 0 < self.batch_size < len(x_data):
-                idx = np.random.permutation(self.batch_size)
-                xx = x_data[idx]
-                yy = y_data[idx]
-            else:
-                xx = x_data
-                yy = y_data
-            x = Variable(xx)
-            t = Variable(yy)
-            self.optimizer.zero_grads()
-            loss = self._loss_func(self._forward(x, train=True), t)
-            loss.backward()
-            self.optimizer.update()
-            d_score = score - loss.data
-            score = loss.data
-            if d_score < self.eps:
-                print(i, loss.data, d_score)
-                break
-            if self.report > 0 and i % self.report == 0:
-                print(i, loss.data, d_score)
+        all_x = Variable(x_data)
+        all_y = Variable(y_data)
+
+        data_size = len(x_data)
+
+        for epoch in range(self.n_iter):
+            indexes = np.random.permutation(data_size)
+            for i in range(0, data_size, self.batch_size):
+                xx = Variable(x_data[indexes[i: i + self.batch_size]])
+                yy = Variable(y_data[indexes[i: i + self.batch_size]])
+                self.optimizer.zero_grads()
+                loss = self._loss_func(self._forward(xx, train=True), yy)
+                loss.backward()
+                self.optimizer.update()
+
+            if self.report > 0 and epoch % self.report == 0:
+                loss = self._loss_func(self._forward(all_x), all_y)
+                d_score = score - loss.data
+                score = loss.data
+                print(epoch, loss.data, d_score)
 
         return self
 

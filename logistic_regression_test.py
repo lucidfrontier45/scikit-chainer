@@ -1,12 +1,17 @@
 __author__ = 'du'
 
 import numpy as np
-from skchainer import linear
-from scipy import special
+from chainer import optimizers
+from sklearn import datasets
 
-x = np.linspace(-10, 10, 10000).astype(np.float32)
-p = special.expit(x)
-y = np.random.binomial(1, p).astype(np.int32)
-x = x.reshape(len(x), 1)
-model = linear.LogisticRegression(n_dim=1, n_classes=2, report=100).fit(x, y)
+from skchainer import linear
+
+iris = datasets.load_iris()
+x = iris.data.astype(np.float32)
+y = iris.target.astype(np.int32)
+
+n_dim = 4
+n_classes = 3
+
+model = linear.LogisticRegression(optimizer=optimizers.Adam(), n_dim=n_dim, n_classes=n_classes, n_iter=500).fit(x, y)
 print(model.score(x, y))

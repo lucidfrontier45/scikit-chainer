@@ -1,7 +1,7 @@
 __author__ = 'du'
 
 import numpy as np
-from chainer import FunctionSet, functions as F
+from chainer import Chain, functions as F
 from . import BaseChainerEstimator, ChainerTransformer
 
 
@@ -11,7 +11,7 @@ class AutoEncoder(ChainerTransformer):
         self.activation = activation
 
     def _setup_network(self, **params):
-        return FunctionSet(
+        return Chain(
             encoder=F.Linear(params["input_dim"], params["hidden_dim"]),
             decoder=F.Linear(params["hidden_dim"], params["input_dim"])
         )
@@ -34,7 +34,7 @@ class DenoisingAutoEncoder(AutoEncoder):
         self.noise_ratio = float(noise_ratio)
 
     def _setup_network(self, **params):
-        return FunctionSet(
+        return Chain(
             encoder=F.Linear(params["input_dim"], params["hidden_dim"]),
             decoder=F.Linear(params["hidden_dim"], params["input_dim"])
         )

@@ -1,12 +1,12 @@
 __author__ = 'du'
 
-from chainer import FunctionSet, functions as F
+from chainer import Chain, functions as F
 from . import ChainerClassifier
 
 
 class MultiLayerPerceptron(ChainerClassifier):
     def _setup_network(self, **params):
-        network = FunctionSet(
+        network = Chain(
             l1=F.Linear(params["input_dim"], params["hidden_dim"]),
             l2=F.Linear(params["hidden_dim"], params["n_classes"])
         )

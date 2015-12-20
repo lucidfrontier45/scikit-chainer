@@ -25,7 +25,7 @@ You need to inherit them and implement the following functions,
 ```python
 class LinearRegression(ChainerRegresser):
     def _setup_network(self, **params):
-        return FunctionSet(l1=F.Linear(params["n_dim"], 1))
+        return Chain(l1=F.Linear(params["n_dim"], 1))
 
     def forward(self, x):
         y = self.network.l1(x)
@@ -42,7 +42,7 @@ class LinearRegression(ChainerRegresser):
 ```python
 class LogisticRegression(ChainerClassifier):
     def _setup_network(self, **params):
-        return FunctionSet(l1=F.Linear(params["n_dim"], params["n_class"]))
+        return Chain(l1=F.Linear(params["n_dim"], params["n_class"]))
 
     def forward(self, x):
         y = self.network.l1(x)
@@ -64,7 +64,7 @@ class AutoEncoder(ChainerTransformer):
         self.activation = activation
 
     def _setup_network(self, **params):
-        return FunctionSet(
+        return Chain(
             encoder=F.Linear(params["input_dim"], params["hidden_dim"]),
             decoder=F.Linear(params["hidden_dim"], params["input_dim"])
         )

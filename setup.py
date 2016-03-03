@@ -10,7 +10,7 @@ classifiers = [
 
 setup(
     name='scikit-chainer',
-    version='0.3',
+    version='0.4',
     packages=['skchainer'],
     url='https://github.com/lucidfrontier45/scikit-chainer',
     license='MIT',

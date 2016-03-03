@@ -13,7 +13,7 @@ You can use it to build your network model and use the model with scikit-learn A
 There are `ChainerRegresser` for regression, `ChainerClassifer` for classification base classes and `ChainerTransformer` for transformation.
 You need to inherit them and implement the following functions,
 
-1. `_setup_network` : network definition (`FunctionSet` of chainer)
+1. `_setup_network` : network definition (`FunctionSet`, `Chain` or `ChainList` of chainer)
 2. `forward` : emit the result `z` input `x` (note this is not the final predicted value)
 3. `loss_func`: the loss function to minimize (e.g. `mean_squared_error`, `softmax_cross_entropy` etc)
 4. `output_func` : emit the final result `y` from forwarded values `z` (e.g. `identity` for regression and `softmax` for classification. 

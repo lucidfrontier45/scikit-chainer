@@ -10,8 +10,11 @@ from sklearn import base
 
 class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
     def __init__(self, optimizer=optimizers.SGD(), batch_size=10, n_iter=100, report=10,
-                 **params):
-        self.network = self._setup_network(**params)
+                 network_params=None):
+        if network_params is None:
+            network_params = dict()
+        self.network_params = network_params
+        self.network = self._setup_network(**network_params)
         self.optimizer = optimizer
         self.optimizer.setup(self.network)
         self.n_iter = n_iter

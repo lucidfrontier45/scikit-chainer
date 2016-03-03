@@ -2,6 +2,7 @@ __author__ = 'du'
 
 import numpy as np
 from chainer import Chain, functions as F
+
 from . import BaseChainerEstimator, ChainerTransformer
 
 
@@ -17,7 +18,7 @@ class AutoEncoder(ChainerTransformer):
         )
 
     def _forward(self, x, train=False):
-        z = self._transform(x, train)
+        z = self._transform(x, train=train)
         y = self.network.decoder(z)
         return y
 
@@ -46,3 +47,8 @@ class DenoisingAutoEncoder(AutoEncoder):
         s = np.std(x_data, 0) * self.noise_ratio
         noisy_x = x_data + np.random.randn(*x_data.shape) * s
         return BaseChainerEstimator.fit(self, x_data, noisy_x.astype(np.float32))
+
+
+class DropoutAutoEncoder(AutoEncoder):
+    def _transform(self, x, train=False):
+        return F.dropout(self.activation(self.network.encoder(x)), train=train)

@@ -2,13 +2,15 @@ __author__ = 'du'
 
 from abc import ABCMeta, abstractmethod
 
+from six import add_metaclass
 import numpy as np
 from chainer import Chain, Variable, optimizers
 from chainer import functions as F
 from sklearn import base
 
 
-class BaseChainerEstimator(base.BaseEstimator, metaclass=ABCMeta):
+@add_metaclass(ABCMeta)
+class BaseChainerEstimator(base.BaseEstimator):
     def __init__(self, optimizer=optimizers.SGD(), batch_size=10, n_iter=100, report=10,
                  network_params=None):
         if network_params is None:
